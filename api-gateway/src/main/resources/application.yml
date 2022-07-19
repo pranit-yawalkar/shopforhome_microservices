@@ -1,0 +1,60 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+              allowedOrigins: "*"
+              allowedMethods: "*"
+              allowedHeaders: "*"
+      routes:
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/product/**, /api/category/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: product-service
+                fallbackuri: forward:/productServiceFallback
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: user-service
+                fallbackuri: forward:/userServiceFallback
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/wishlist/**, /api/cart/**, /api/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: order-service
+                fallbackuri: forward:/orderServiceFallback
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
