@@ -1,14 +1,20 @@
 package com.wipro.shopforhome.orderservice.service;
 
-import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import com.wipro.shopforhome.orderservice.dto.ProductDTO;
 import com.wipro.shopforhome.orderservice.dto.cart.CartDTO;
 import com.wipro.shopforhome.orderservice.dto.cart.CartItemDTO;
-import com.wipro.shopforhome.orderservice.dto.checkout.CheckoutItemDTO;
 import com.wipro.shopforhome.orderservice.dto.order.OrderDTO;
+import com.wipro.shopforhome.orderservice.dto.order.OrderItemDTO;
 import com.wipro.shopforhome.orderservice.exception.ResourceNotFoundException;
 import com.wipro.shopforhome.orderservice.model.Order;
 import com.wipro.shopforhome.orderservice.model.OrderItem;
@@ -16,14 +22,6 @@ import com.wipro.shopforhome.orderservice.model.Product;
 import com.wipro.shopforhome.orderservice.model.User;
 import com.wipro.shopforhome.orderservice.repository.OrderItemRepository;
 import com.wipro.shopforhome.orderservice.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class OrderService {
@@ -91,41 +89,40 @@ public class OrderService {
 //    }
 
 	public OrderDTO getOrderDTO(Order order) {
-		List<CartItemDTO> cartItemDTOList = this.cartService.getCartItemDTO(order.getUser());
 		OrderDTO orderDTO = new OrderDTO();
 		orderDTO.setId(order.getId());
 		orderDTO.setTotalPrice(order.getTotalPrice());
-		orderDTO.setOrderItems(cartItemDTOList);
+//		orderDTO.setOrderItems(order.getOrderItems());
 		orderDTO.setUserId(order.getUser().getId());
-		orderDTO.setSessionId(order.getSessionId());
 		orderDTO.setCreatedDate(new Date());
 		return orderDTO;
 	}
 
-	public OrderDTO placeOrder(User user, String sessionId) {
-		CartDTO cartDTO = this.cartService.getCartItems(user);
+	@Transactional
+	public OrderDTO placeOrder(CartDTO cartDTO, String token) {
+		this.authenticationService.authenticate(token);
+		User user = this.authenticationService.getUser(token);
 
 		List<CartItemDTO> cartItemsDtoList = cartDTO.getCartItems();
+		List<OrderItem> orderItems = new ArrayList<>();
 
 		Order newOrder = new Order();
-		newOrder.setCreatedDate(new Date());
-		newOrder.setSessionId(sessionId);
-		newOrder.setUser(user);
-		newOrder.setTotalPrice(cartDTO.getTotalCost());
-
-		orderRepository.save(newOrder);
-
 		cartItemsDtoList.forEach(cartItemDTO -> {
 			ProductDTO productDTO = this.restTemplate.getForObject(
-					"http://product-service/api/product/get" + cartItemDTO.getProductDTO().getProductId(),
+					"http://product-service/api/product/get/" + cartItemDTO.getProductDTO().getProductId(),
 					ProductDTO.class);
 			Product product = null;
 			if (productDTO != null) {
 				product = this.cartService.getProductByProductDTO(productDTO);
 			}
-			OrderItem orderItem = new OrderItem(cartItemDTO.getQuantity(), cartItemDTO.getProductDTO().getPrice(),
-					newOrder, product);
+			
+			OrderItem orderItem = new OrderItem(cartItemDTO.getQuantity(), cartItemDTO.getProductDTO().getPrice(), product);
 			orderItemRepository.save(orderItem);
+			newOrder.setCreatedDate(new Date());
+			newOrder.setUser(user);
+			newOrder.setOrderItem(orderItem);
+			newOrder.setTotalPrice(cartDTO.getTotalCost());
+			orderRepository.save(newOrder);
 		});
 
 		this.cartService.deleteUserCartItems(user);
@@ -133,32 +130,41 @@ public class OrderService {
 		OrderDTO orderDTO = new OrderDTO();
 		orderDTO.setId(newOrder.getId());
 		orderDTO.setCreatedDate(new Date());
-		orderDTO.setOrderItems(cartItemsDtoList);
-		orderDTO.setSessionId(newOrder.getSessionId());
+		orderDTO.setOrderItems(orderItems);
 		orderDTO.setTotalPrice(newOrder.getTotalPrice());
 		orderDTO.setUserId(newOrder.getUser().getId());
 
 		return orderDTO;
 	}
 
-	public List<OrderDTO> getAllOrders(String token) {
+	@Transactional
+	public List<OrderItemDTO> getAllOrders(String token) {
 
 		this.authenticationService.authenticate(token);
 		User user = this.authenticationService.getUser(token);
 
-		List<Order> orderList = this.orderRepository.findAllByUserOrderByCreatedDateDesc(user);
-		List<OrderDTO> orderDTOList = new ArrayList<>();
+		List<Order> orderList = this.orderRepository.findByUser(user);
+		List<OrderItemDTO> orderDTOs = new ArrayList<>();
 
 		orderList.forEach(order -> {
-			orderDTOList.add(getOrderDTO(order));
+			OrderItemDTO orderItemDTO = new OrderItemDTO(order.getOrderItem().getId(), 
+					order.getTotalPrice(), order.getOrderItem());
+			orderDTOs.add(orderItemDTO);
 		});
-
-		return orderDTOList;
+		
+		return orderDTOs;
 	}
 
+	@Transactional
 	public OrderDTO getOrderById(Long orderId, String token) {
 		this.authenticationService.authenticate(token);
 		User user = this.authenticationService.getUser(token);
+		Order order = this.orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order does not exist"));
+		return getOrderDTO(order);
+	}
+	
+	public OrderDTO getOrderById(Long orderId) {
 		Order order = this.orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResourceNotFoundException("Order does not exist"));
 		return getOrderDTO(order);

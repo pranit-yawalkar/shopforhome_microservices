@@ -8,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wipro.shopforhome.orderservice.dto.cart.CartDTO;
 import com.wipro.shopforhome.orderservice.dto.order.OrderDTO;
-import com.wipro.shopforhome.orderservice.model.User;
+import com.wipro.shopforhome.orderservice.dto.order.OrderItemDTO;
 import com.wipro.shopforhome.orderservice.service.OrderService;
 
 @RestController
@@ -32,14 +34,14 @@ public class OrderController {
 //	}
 
 	@PostMapping("/place-order")
-	public ResponseEntity<OrderDTO> placeOrder(User user, String sessionId) {
-		OrderDTO orderDTO = this.orderService.placeOrder(user, sessionId);
+	public ResponseEntity<OrderDTO> placeOrder(@RequestBody CartDTO cartDTO, @RequestParam("token") String token) {
+		OrderDTO orderDTO = this.orderService.placeOrder(cartDTO, token);
 		return new ResponseEntity<>(orderDTO, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/getAll")
-	public ResponseEntity<List<OrderDTO>> getAllOrders(@RequestParam("token") String token) {
-		List<OrderDTO> orderDTOList = this.orderService.getAllOrders(token);
+	public ResponseEntity<List<OrderItemDTO>> getAllOrders(@RequestParam("token") String token) {
+		List<OrderItemDTO> orderDTOList = this.orderService.getAllOrders(token);
 		return new ResponseEntity<>(orderDTOList, HttpStatus.OK);
 	}
 

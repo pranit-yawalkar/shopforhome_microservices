@@ -8,6 +8,7 @@ import com.wipro.shopforhome.userservice.exception.CustomException;
 import com.wipro.shopforhome.userservice.exception.ResourceNotFoundException;
 import com.wipro.shopforhome.userservice.model.AuthenticationToken;
 import com.wipro.shopforhome.userservice.model.User;
+import com.wipro.shopforhome.userservice.repository.TokenRepository;
 import com.wipro.shopforhome.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,10 @@ public class UserService {
 	public User getUserById(Long userId) {
 		return this.userRepository.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+	}
+	
+	public User getUserByToken(String token) {
+		return this.authenticationService.getUser(token);
 	}
 
 }

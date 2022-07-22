@@ -2,20 +2,24 @@ package com.wipro.shopforhome.orderservice.service;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import com.wipro.shopforhome.orderservice.dto.ProductDTO;
 import com.wipro.shopforhome.orderservice.dto.wishlist.AddToWishListDTO;
 import com.wipro.shopforhome.orderservice.dto.wishlist.WishListDTO;
 import com.wipro.shopforhome.orderservice.dto.wishlist.WishListItemDTO;
 import com.wipro.shopforhome.orderservice.exception.CustomException;
 import com.wipro.shopforhome.orderservice.exception.ResourceNotFoundException;
-import com.wipro.shopforhome.orderservice.model.*;
+import com.wipro.shopforhome.orderservice.model.Category;
+import com.wipro.shopforhome.orderservice.model.Product;
+import com.wipro.shopforhome.orderservice.model.User;
+import com.wipro.shopforhome.orderservice.model.WishList;
 import com.wipro.shopforhome.orderservice.repository.WishListRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class WishListService {
@@ -86,7 +90,7 @@ public class WishListService {
         List<WishList> wishLists = getWishListByUser(user);
 
         wishLists.forEach(wishList -> {
-            if(wishList.getProduct().getId().equals(addToWishListDTO.getId())){
+            if(wishList.getProduct().getId().equals(addToWishListDTO.getProductId())){
                 throw new CustomException("Product already added to the wishlist");
             }
         });

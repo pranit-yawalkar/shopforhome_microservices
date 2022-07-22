@@ -1,6 +1,5 @@
 package com.wipro.shopforhome.orderservice.service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,132 +26,191 @@ import com.wipro.shopforhome.orderservice.repository.CartRepository;
 @RefreshScope
 public class CartService {
 
-    @Autowired
-    @Lazy
-    private RestTemplate restTemplate;
+	@Autowired
+	@Lazy
+	private RestTemplate restTemplate;
 
-    @Autowired
-    private CartRepository cartRepository;
+	@Autowired
+	private CartRepository cartRepository;
 
-    @Value("${microservice.product-service.endpoints.endpoint.uri}")
-    private String PRODUCT_URI;
+	@Value("${microservice.product-service.endpoints.endpoint.uri}")
+	private String PRODUCT_URI;
 
-    @Value("${microservice.category-service.endpoints.endpoint.uri}")
-    private String CATEGORY_URI;
+	@Value("${microservice.category-service.endpoints.endpoint.uri}")
+	private String CATEGORY_URI;
 
 //    @Autowired
 //    private ProductService productService;
 
-    @Autowired
-    private AuthenticationService authenticationService;
+	@Autowired
+	private AuthenticationService authenticationService;
 
+	public Product getProductByProductDTO(ProductDTO productDTO) {
+		Category category = this.restTemplate.getForObject(CATEGORY_URI + productDTO.getCategoryId(), Category.class);
+		Product product = new Product(productDTO.getProductId(), productDTO.getProductName(), productDTO.getImageUrl(),
+				productDTO.getPrice(), productDTO.getDescription(), productDTO.getQuantity(), category);
+		return product;
+	}
 
-    public Product getProductByProductDTO(ProductDTO productDTO) {
-        Category category = this.restTemplate.getForObject(CATEGORY_URI + productDTO.getCategoryId(), Category.class);
-        Product product = new Product(productDTO.getProductId(), productDTO.getProductName(),
-                productDTO.getImageUrl(), productDTO.getPrice(), productDTO.getDescription(), productDTO.getQuantity(), category);
-        return product;
-    }
+	public boolean setQuantityById(String token, Long id, Integer quantity) {
+		authenticationService.authenticate(token);
 
-    public Cart addToCart(AddToCartDTO addToCartDTO, String token) {
+		User user = authenticationService.getUser(token);
 
-        authenticationService.authenticate(token);
+		CartItemDTO cartItemDTO = this.getCartItemById(id);
+		cartItemDTO.setQuantity(quantity);
+		return true;
+	}
+//
+//	public boolean decreaseQuantityById(String token, Long id) {
+//		authenticationService.authenticate(token);
+//
+//		User user = authenticationService.getUser(token);
+//		CartItemDTO cartItemDTO = this.getCartItemById(id);
+//		cartItemDTO.setQuantity(cartItemDTO.getQuantity() - 1);
+//		return true;
+//	}
 
-        User user = authenticationService.getUser(token);
+	public Cart addToCart(AddToCartDTO addToCartDTO, String token) {
 
-        // validate if the product id is valid
+		authenticationService.authenticate(token);
+
+		User user = authenticationService.getUser(token);
+
+		// check if product already exist in cart
+		CartDTO cartDTO = getCartItems(user);
+
+		cartDTO.getCartItems().forEach(cartItem -> {
+			if (cartItem.getProductDTO().getProductId().equals(addToCartDTO.getProductId())) {
+				throw new CustomException("Product already added to the cart");
+			}
+		});
+
+		// validate if the product id is valid
 //
 
-        ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + addToCartDTO.getProductId(), ProductDTO.class);
-        Category category = this.restTemplate.getForObject(CATEGORY_URI + productDTO.getCategoryId(), Category.class);
-        Product product = new Product(productDTO.getProductId(), productDTO.getProductName(),
-                productDTO.getImageUrl(), productDTO.getPrice(), productDTO.getDescription(), productDTO.getQuantity(), category);
+		ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + addToCartDTO.getProductId(),
+				ProductDTO.class);
+		Category category = this.restTemplate.getForObject(CATEGORY_URI + productDTO.getCategoryId(), Category.class);
+		Product product = new Product(productDTO.getProductId(), productDTO.getProductName(), productDTO.getImageUrl(),
+				productDTO.getPrice(), productDTO.getDescription(), productDTO.getQuantity(), category);
 
-        Cart cart = new Cart(addToCartDTO.getQuantity(), product, user);
+		Cart cart = new Cart(addToCartDTO.getQuantity(), product, user);
 
-        // save the cart
-        return this.cartRepository.save(cart);
-    }
+		// save the cart
+		return this.cartRepository.save(cart);
+	}
 
-    public CartDTO getCartItems(String token) {
+	public CartDTO getCartItems(String token) {
 
-        this.authenticationService.authenticate(token);
+		this.authenticationService.authenticate(token);
 
-        User user = this.authenticationService.getUser(token);
+		User user = this.authenticationService.getUser(token);
 
-        List<Cart> cartList = this.cartRepository.findAllByUserOrderByCreatedDateDesc(user);
+		List<Cart> cartList = this.cartRepository.findAllByUserOrderByCreatedDateDesc(user);
 
-        List<CartItemDTO> cartItems = new ArrayList<>();
+		List<CartItemDTO> cartItems = new ArrayList<>();
 
-        double totalCost = 0;
+		double totalCost = 0;
 
-        for(Cart cart: cartList) {
+		for (Cart cart : cartList) {
 //            ProductDTO productDTO = this.productService.getProductDTO(cart.getProduct());
-            ProductDTO productDTO = this.restTemplate.getForObject(
-                    PRODUCT_URI + cart.getProduct().getId(), ProductDTO.class);
-            CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
-            totalCost += (cartItemDTO.getQuantity() *cartItemDTO.getProductDTO().getPrice());
-            cartItems.add(cartItemDTO);
-        }
+			ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + cart.getProduct().getId(),
+					ProductDTO.class);
+			CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
+			totalCost += (cartItemDTO.getQuantity() * cartItemDTO.getProductDTO().getPrice());
+			cartItems.add(cartItemDTO);
+		}
 
-        CartDTO cartDTO = new CartDTO();
-        cartDTO.setCartItems(cartItems);
-        cartDTO.setTotalCost(totalCost);
+		CartDTO cartDTO = new CartDTO();
+		cartDTO.setCartItems(cartItems);
+		cartDTO.setTotalCost(totalCost);
 
-        return cartDTO;
-    }
+		return cartDTO;
+	}
 
+	public CartDTO getCartItems(User user) {
+		List<Cart> cartList = this.cartRepository.findAllByUserOrderByCreatedDateDesc(user);
 
-    public CartDTO getCartItems(User user) {
-        List<Cart> cartList = this.cartRepository.findAllByUserOrderByCreatedDateDesc(user);
+		List<CartItemDTO> cartItems = new ArrayList<>();
 
-        List<CartItemDTO> cartItems = new ArrayList<>();
+		double totalCost = 0;
 
-        double totalCost = 0;
+		for (Cart cart : cartList) {
+			ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + cart.getProduct().getId(),
+					ProductDTO.class);
+			CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
+			totalCost += (cartItemDTO.getQuantity() * cartItemDTO.getProductDTO().getPrice());
+			cartItems.add(cartItemDTO);
+		}
 
-        for(Cart cart: cartList) {
-            ProductDTO productDTO = this.restTemplate.getForObject(
-                    PRODUCT_URI + cart.getProduct().getId(), ProductDTO.class);
-            CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
-            totalCost += (cartItemDTO.getQuantity() *cartItemDTO.getProductDTO().getPrice());
-            cartItems.add(cartItemDTO);
-        }
+		CartDTO cartDTO = new CartDTO();
+		cartDTO.setCartItems(cartItems);
+		cartDTO.setTotalCost(totalCost);
 
-        CartDTO cartDTO = new CartDTO();
-        cartDTO.setCartItems(cartItems);
-        cartDTO.setTotalCost(totalCost);
+		return cartDTO;
+	}
 
-        return cartDTO;
-    }
+	public CartItemDTO getCartItemById(Long cartItemId) {
 
-    public List<CartItemDTO> getCartItemDTO(User user) {
-        List<Cart> cartList = this.cartRepository.findAllByUserOrderByCreatedDateDesc(user);
-        List<CartItemDTO> cartItems = new ArrayList<>();
-        for(Cart cart: cartList) {
-            ProductDTO productDTO = this.restTemplate.getForObject(
-                    PRODUCT_URI + cart.getProduct().getId(), ProductDTO.class);
-            CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
-            cartItems.add(cartItemDTO);
-        }
-        return cartItems;
-    }
+		Cart cart = this.cartRepository.findById(cartItemId)
+				.orElseThrow(() -> new ResourceNotFoundException("Cart item id is invalid"));
+		CartItemDTO cartItemDTO = this.getCartItemDTO(cart);
+		return cartItemDTO;
+	}
 
-    public void deleteCartItem(Long cartItemId, String token) {
-        this.authenticationService.authenticate(token);
+	public List<CartItemDTO> getCartItemDTO(User user) {
+		List<Cart> cartList = this.cartRepository.findAllByUserOrderByCreatedDateDesc(user);
+		List<CartItemDTO> cartItems = new ArrayList<>();
+		for (Cart cart : cartList) {
+			CartItemDTO cartItemDTO = this.getCartItemDTO(cart);
+			cartItems.add(cartItemDTO);
+		}
+		return cartItems;
+	}
 
-        User user = this.authenticationService.getUser(token);
+	public CartItemDTO getCartItemDTO(Cart cart) {
+		ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + cart.getProduct().getId(),
+				ProductDTO.class);
+		CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
+		return cartItemDTO;
+	}
 
-        Cart cart = this.cartRepository.findById(cartItemId)
-                .orElseThrow(()->new ResourceNotFoundException("Cart item id is invalid"));
+	public void updateCartItem(Long CartItemId, AddToCartDTO addToCartDTO, String token) {
+		authenticationService.authenticate(token);
 
-        if(cart.getUser()!=user) {
-            throw new CustomException("Cart item does not belong to user");
-        }
+		User user = authenticationService.getUser(token);
 
-        this.cartRepository.delete(cart);
-    }
+		Cart cart = this.cartRepository.findById(CartItemId)
+				.orElseThrow(() -> new ResourceNotFoundException("Cart does not exist"));
+		cart.setQuantity(addToCartDTO.getQuantity());
+		this.cartRepository.save(cart);
+	}
 
-    public void deleteUserCartItems(User user) {
-        cartRepository.deleteByUser(user);
-    }
+	public void deleteCartItem(Long cartItemId, String token) {
+		this.authenticationService.authenticate(token);
+
+		User user = this.authenticationService.getUser(token);
+
+		Cart cart = this.cartRepository.findById(cartItemId)
+				.orElseThrow(() -> new ResourceNotFoundException("Cart item id is invalid"));
+
+		if (cart.getUser() != user) {
+			throw new CustomException("Cart item does not belong to user");
+		}
+
+		this.cartRepository.delete(cart);
+	}
+
+	public void deleteAll(String token) {
+		this.authenticationService.authenticate(token);
+
+		User user = this.authenticationService.getUser(token);
+
+		this.cartRepository.deleteAll();
+	}
+
+	public void deleteUserCartItems(User user) {
+		cartRepository.deleteByUser(user);
+	}
 }

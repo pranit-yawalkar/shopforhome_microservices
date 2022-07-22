@@ -1,12 +1,21 @@
 package com.wipro.shopforhome.orderservice.model;
 
-import com.wipro.shopforhome.orderservice.dto.ProductDTO;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "order_items")
@@ -23,25 +32,12 @@ public class OrderItem {
 	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
-	@Column(name = "price", nullable = false)
-	private Double price;
-
-	@Column(name = "created_date", nullable = false)
-	private Date createdDate;
-
-	@ManyToOne
-	@JoinColumn(name = "order_id")
-	private Order order;
-
 	@OneToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
 
-	public OrderItem(int quantity, Double price, Order order, Product product) {
+	public OrderItem(int quantity, Double price, Product product) {
 		this.quantity = quantity;
-		this.price = price;
-		this.order = order;
 		this.product = product;
-		this.createdDate = new Date();
 	}
 }
