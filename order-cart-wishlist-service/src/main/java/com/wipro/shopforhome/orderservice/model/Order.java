@@ -3,6 +3,7 @@ package com.wipro.shopforhome.orderservice.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,11 +38,11 @@ public class Order {
 	@Column(name = "total_price", nullable = false)
 	private Double totalPrice;
 
-	@OneToOne()
+	@OneToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "ordered_item_id")
 	private OrderItem orderItem;
 
-	@ManyToOne()
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "user_id")
 	private User user;
 }

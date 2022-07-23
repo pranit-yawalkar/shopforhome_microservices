@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,14 +39,14 @@ public class UserController {
 	}
 
 	@GetMapping("/getAll")
-	public ResponseEntity<List<User>> getAllUser() {
-		List<User> users = this.userService.getAllUsers();
+	public ResponseEntity<List<User>> getAllUser(@RequestParam("role") String role) {
+		List<User> users = this.userService.getAllUsers(role);
 		return new ResponseEntity<>(users, HttpStatus.OK);
 	}
 
 	@GetMapping("/get/{userId}")
-	public ResponseEntity<User> getUserById(@PathVariable Long userId) {
-		User user = this.userService.getUserById(userId);
+	public ResponseEntity<User> getUserById(@PathVariable Long userId, @RequestParam("role") String role) {
+		User user = this.userService.getUserById(userId, role);
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
@@ -52,5 +54,19 @@ public class UserController {
 	public ResponseEntity<User> getUserByToken(@RequestParam("token") String token) {
 		User user = this.userService.getUserByToken(token);
 		return new ResponseEntity<>(user, HttpStatus.OK);
+	}
+
+	@PutMapping("/update/{userId}")
+	public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestParam("role") String role,
+			@RequestBody User user) {
+		User updateUser = this.userService.updateUser(userId, role, user);
+		return new ResponseEntity<>(updateUser, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/delete/{userId}")
+	public ResponseEntity<ResponseDTO> deleteUser(@PathVariable Long userId, @RequestParam("role") String role) {
+		this.userService.deleteUser(userId, role);
+		ResponseDTO responseDTO = new ResponseDTO("true", "User deleted successfully!", "");
+		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
 }

@@ -2,8 +2,8 @@ package com.wipro.shopforhome.orderservice.dto.order;
 
 import java.util.Date;
 import java.util.List;
+
 import com.sun.istack.NotNull;
-import com.wipro.shopforhome.orderservice.model.OrderItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,10 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderDTO {
-	private @NotNull Long id;
+public class SortedOrdersDTO {
 	private @NotNull Date createdDate;
-	private @NotNull Double totalPrice;
-	private @NotNull OrderItem orderItem;
-	private @NotNull Long userId;
+	private @NotNull List<OrderItemDTO> orderItemDTOs;
 }

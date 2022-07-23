@@ -22,15 +22,30 @@ public class ProductService {
     @Autowired
     private CategoryService categoryService;
 
-    public Product createProduct(ProductDTO productDTO) {
-        Product product = new Product();
+    public Product getProduct(ProductDTO productDTO) {
+    	Product product = new Product();
         product.setProductName(productDTO.getProductName());
         product.setImageUrl(productDTO.getImageUrl());
         product.setPrice(productDTO.getPrice());
         product.setDescription(productDTO.getDescription());
         product.setQuantity(productDTO.getQuantity());
         product.setCategory(this.categoryService.getCategoryById(productDTO.getCategoryId()));
+        return product;
+    }
+    
+    public Product createProduct(ProductDTO productDTO) {
+        Product product = getProduct(productDTO);
         return this.productRepository.save(product);
+    }
+    
+    public List<Product> addAllProducts(List<ProductDTO> productDTOs) {
+    	List<Product> products = new ArrayList<>();
+    	productDTOs.forEach(productDTO -> {
+    		Product product = getProduct(productDTO);
+    		products.add(product);
+    	});
+    	
+    	return this.productRepository.saveAll(products);
     }
 
     public ProductDTO getProductDTO(Product product) {
@@ -88,5 +103,11 @@ public class ProductService {
         product.setDescription(productDTO.getDescription());
         product.setCategory(this.categoryService.getCategoryById(productDTO.getCategoryId()));
         return this.productRepository.save(product);
+    }
+    
+    public void deleteProduct(Long id) {
+    	Product product = this.productRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Product does not exist"));
+        this.productRepository.delete(product);
     }
 }

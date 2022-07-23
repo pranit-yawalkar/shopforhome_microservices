@@ -41,5 +41,9 @@ public class CategoryService {
 		newCategory.setImageUrl(category.getImageUrl());
 		return this.categoryRepository.save(newCategory);
 	}
+	
+	public void deleteCategory(Long id) {
+		this.categoryRepository.deleteById(id);
+	}
 
 }

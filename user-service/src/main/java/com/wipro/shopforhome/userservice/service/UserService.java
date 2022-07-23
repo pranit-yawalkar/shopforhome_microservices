@@ -23,6 +23,9 @@ public class UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private TokenRepository tokenRepository;
 
 	@Autowired
 	private PasswordService passwordService;
@@ -83,17 +86,56 @@ public class UserService {
 		return new ResponseDTO("success", token.getToken(), user.getRole());
 	}
 
-	public List<User> getAllUsers() {
-		return this.userRepository.findAll();
+	public List<User> getAllUsers(String role) {
+		if(role.equals("admin")) {
+			return this.userRepository.findAll();
+		} else {
+			throw new CustomException("Access Denied");
+		}
 	}
 
-	public User getUserById(Long userId) {
-		return this.userRepository.findById(userId)
+	public User getUserById(Long userId, String role) {
+		if(role.equals("admin")) {
+			return this.userRepository.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+		} else {
+			throw new CustomException("Access Denied");
+		}
 	}
 	
 	public User getUserByToken(String token) {
 		return this.authenticationService.getUser(token);
+	}
+	
+	public User updateUser(Long userId, String role, User user) {
+		if(role.equals("admin")) {
+			User updateUser = this.userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+			updateUser.setFirstName(user.getFirstName());
+			updateUser.setLastName(user.getLastName());
+			updateUser.setEmail(user.getEmail());
+			updateUser.setContactNumber(user.getContactNumber());
+			updateUser.setAddress(user.getAddress());
+			updateUser.setCity(user.getCity());
+			updateUser.setState(user.getState());
+			updateUser.setZipCode(user.getZipCode());
+			updateUser.setRole(user.getRole());
+			return this.userRepository.save(updateUser);
+		} else {
+			throw new CustomException("Access Denied");
+		}
+	}
+	
+	@Transactional
+	public void deleteUser(Long id, String role) {
+		if(role.equals("admin")) {
+			User user = this.userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+			this.tokenRepository.deleteByUser(user);
+			this.userRepository.delete(user);
+		} else {
+			throw new CustomException("Access Denied");
+		}
 	}
 
 }

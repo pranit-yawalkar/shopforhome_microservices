@@ -1,7 +1,11 @@
 package com.wipro.shopforhome.orderservice.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -15,6 +19,9 @@ import com.wipro.shopforhome.orderservice.dto.cart.CartDTO;
 import com.wipro.shopforhome.orderservice.dto.cart.CartItemDTO;
 import com.wipro.shopforhome.orderservice.dto.order.OrderDTO;
 import com.wipro.shopforhome.orderservice.dto.order.OrderItemDTO;
+import com.wipro.shopforhome.orderservice.dto.order.SortedOrdersDTO;
+import com.wipro.shopforhome.orderservice.dto.order.SortedOrdersDTO;
+import com.wipro.shopforhome.orderservice.exception.CustomException;
 import com.wipro.shopforhome.orderservice.exception.ResourceNotFoundException;
 import com.wipro.shopforhome.orderservice.model.Order;
 import com.wipro.shopforhome.orderservice.model.OrderItem;
@@ -92,49 +99,46 @@ public class OrderService {
 		OrderDTO orderDTO = new OrderDTO();
 		orderDTO.setId(order.getId());
 		orderDTO.setTotalPrice(order.getTotalPrice());
-//		orderDTO.setOrderItems(order.getOrderItems());
+		orderDTO.setOrderItem(order.getOrderItem());
 		orderDTO.setUserId(order.getUser().getId());
 		orderDTO.setCreatedDate(new Date());
 		return orderDTO;
 	}
 
 	@Transactional
-	public OrderDTO placeOrder(CartDTO cartDTO, String token) {
+	public List<OrderItemDTO> placeOrder(CartDTO cartDTO, String token) {
 		this.authenticationService.authenticate(token);
 		User user = this.authenticationService.getUser(token);
 
 		List<CartItemDTO> cartItemsDtoList = cartDTO.getCartItems();
-		List<OrderItem> orderItems = new ArrayList<>();
+		List<OrderItemDTO> orderItems = new ArrayList<>();
 
-		Order newOrder = new Order();
 		cartItemsDtoList.forEach(cartItemDTO -> {
-			ProductDTO productDTO = this.restTemplate.getForObject(
-					"http://product-service/api/product/get/" + cartItemDTO.getProductDTO().getProductId(),
-					ProductDTO.class);
+//			ProductDTO productDTO = this.restTemplate.getForObject(
+//					"http://product-service/api/product/get/" + cartItemDTO.getProductDTO().getProductId(),
+//					ProductDTO.class);
+			ProductDTO productDTO = cartItemDTO.getProductDTO();
 			Product product = null;
 			if (productDTO != null) {
 				product = this.cartService.getProductByProductDTO(productDTO);
 			}
-			
-			OrderItem orderItem = new OrderItem(cartItemDTO.getQuantity(), cartItemDTO.getProductDTO().getPrice(), product);
+			Order newOrder = new Order();
+			OrderItem orderItem = new OrderItem(cartItemDTO.getQuantity(), cartItemDTO.getProductDTO().getPrice(),
+					product);
 			orderItemRepository.save(orderItem);
 			newOrder.setCreatedDate(new Date());
 			newOrder.setUser(user);
 			newOrder.setOrderItem(orderItem);
-			newOrder.setTotalPrice(cartDTO.getTotalCost());
+			newOrder.setTotalPrice(orderItem.getProduct().getPrice());
 			orderRepository.save(newOrder);
+			OrderItemDTO orderItemDTO = new OrderItemDTO(orderItem.getId(), orderItem.getProduct().getPrice(),
+					orderItem);
+			orderItems.add(orderItemDTO);
 		});
 
 		this.cartService.deleteUserCartItems(user);
 
-		OrderDTO orderDTO = new OrderDTO();
-		orderDTO.setId(newOrder.getId());
-		orderDTO.setCreatedDate(new Date());
-		orderDTO.setOrderItems(orderItems);
-		orderDTO.setTotalPrice(newOrder.getTotalPrice());
-		orderDTO.setUserId(newOrder.getUser().getId());
-
-		return orderDTO;
+		return orderItems;
 	}
 
 	@Transactional
@@ -147,11 +151,11 @@ public class OrderService {
 		List<OrderItemDTO> orderDTOs = new ArrayList<>();
 
 		orderList.forEach(order -> {
-			OrderItemDTO orderItemDTO = new OrderItemDTO(order.getOrderItem().getId(), 
-					order.getTotalPrice(), order.getOrderItem());
+			OrderItemDTO orderItemDTO = new OrderItemDTO(order.getOrderItem().getId(), order.getTotalPrice(),
+					order.getOrderItem());
 			orderDTOs.add(orderItemDTO);
 		});
-		
+
 		return orderDTOs;
 	}
 
@@ -159,15 +163,84 @@ public class OrderService {
 	public OrderDTO getOrderById(Long orderId, String token) {
 		this.authenticationService.authenticate(token);
 		User user = this.authenticationService.getUser(token);
-		Order order = this.orderRepository.findById(orderId)
+		Order order = (Order) this.orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResourceNotFoundException("Order does not exist"));
 		return getOrderDTO(order);
 	}
-	
+
 	public OrderDTO getOrderById(Long orderId) {
-		Order order = this.orderRepository.findById(orderId)
+		Order order = (Order) this.orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResourceNotFoundException("Order does not exist"));
 		return getOrderDTO(order);
+	}
+
+	public static List<Date> getDaysBetweenDates(Date startdate, Date enddate) {
+		List<Date> dates = new ArrayList<Date>();
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(startdate);
+
+		while (calendar.getTime().before(enddate)) {
+			Date result = calendar.getTime();
+			dates.add(result);
+			calendar.add(Calendar.DATE, 1);
+		}
+		return dates;
+	}
+
+	public List<SortedOrdersDTO> getOrdersByCreatedDate() {
+		String startDate = "18-07-2022";
+		String endDate = "30-07-2022";
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Date eDate = null;
+		Date sDate = null;
+		try {
+			sDate = formatter.parse(startDate);
+			eDate = formatter.parse(endDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		List<Date> dates = getDaysBetweenDates(sDate, eDate);
+		List<SortedOrdersDTO> sortedOrdersDTOs = new ArrayList<>();
+		dates.forEach(date -> {
+			SortedOrdersDTO sortedOrdersDTO = new SortedOrdersDTO();
+			sortedOrdersDTO.setCreatedDate(date);
+			List<Order> orders = this.orderRepository.findAllByOrderByCreatedDateDesc();
+			List<OrderItemDTO> orderDTOs = new ArrayList<>();
+			orders.forEach(order -> {
+				OrderItemDTO orderItemDTO = new OrderItemDTO(order.getOrderItem().getId(), order.getTotalPrice(),
+						order.getOrderItem());
+				orderDTOs.add(orderItemDTO);
+			});
+			sortedOrdersDTO.setOrderItemDTOs(orderDTOs);
+		});
+		return sortedOrdersDTOs;
+	}
+
+	public List<OrderDTO> getAllSorted(String role) {
+		if (role.equals("admin")) {
+			List<OrderDTO> orderDTOs = new ArrayList<>();
+			List<Order> orderList = this.orderRepository.findAllByOrderByCreatedDateDesc();
+			orderList.forEach(order -> {
+				OrderDTO orderDTO = getOrderDTO(order);
+				orderDTOs.add(orderDTO);
+			});
+
+			return orderDTOs;
+		} else {
+			throw new CustomException("Access Denied!");
+		}
+	}
+
+	public void deleteOrder(Long orderId, String role) {
+		if (role.equals("admin")) {
+			Order order = (Order) this.orderRepository.findById(orderId)
+					.orElseThrow(() -> new ResourceNotFoundException("Order does not exist"));
+
+			this.orderItemRepository.deleteById(order.getOrderItem().getId());
+			this.orderRepository.delete(order);
+		} else {
+			throw new CustomException("Access Denied!");
+		}
 	}
 
 }
