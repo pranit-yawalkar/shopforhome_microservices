@@ -59,6 +59,12 @@ public class OrderController {
 		return new ResponseEntity<>(sortedOrdersDTOs, HttpStatus.OK);
 	}
 	
+	@GetMapping("/getAllSortedAsc")
+	public ResponseEntity<List<OrderDTO>> getAllSortedOrdersAsc(String role) {
+		List<OrderDTO> sortedOrdersDTOs = this.orderService.getAllSortedAsc(role);
+		return new ResponseEntity<>(sortedOrdersDTOs, HttpStatus.OK);
+	}
+	
 	@DeleteMapping("/delete/{orderId}")
 	public ResponseEntity<ResponseDTO> deleteOrder(@PathVariable Long orderId, @RequestParam("role") String role) {
 		this.orderService.deleteOrder(orderId, role);

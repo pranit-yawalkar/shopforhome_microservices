@@ -33,7 +33,7 @@ public class OrderItem {
 	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne()
 	@JoinColumn(name = "product_id")
 	private Product product;
 

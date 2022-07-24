@@ -101,7 +101,7 @@ public class OrderService {
 		orderDTO.setTotalPrice(order.getTotalPrice());
 		orderDTO.setOrderItem(order.getOrderItem());
 		orderDTO.setUserId(order.getUser().getId());
-		orderDTO.setCreatedDate(new Date());
+		orderDTO.setCreatedDate(order.getCreatedDate());
 		return orderDTO;
 	}
 
@@ -236,8 +236,23 @@ public class OrderService {
 			Order order = (Order) this.orderRepository.findById(orderId)
 					.orElseThrow(() -> new ResourceNotFoundException("Order does not exist"));
 
-			this.orderItemRepository.deleteById(order.getOrderItem().getId());
+//			this.orderItemRepository.deleteById(order.getOrderItem().getId());
 			this.orderRepository.delete(order);
+		} else {
+			throw new CustomException("Access Denied!");
+		}
+	}
+
+	public List<OrderDTO> getAllSortedAsc(String role) {
+		if (role.equals("admin")) {
+			List<OrderDTO> orderDTOs = new ArrayList<>();
+			List<Order> orderList = this.orderRepository.findAllByOrderByCreatedDateAsc();
+			orderList.forEach(order -> {
+				OrderDTO orderDTO = getOrderDTO(order);
+				orderDTOs.add(orderDTO);
+			});
+
+			return orderDTOs;
 		} else {
 			throw new CustomException("Access Denied!");
 		}

@@ -18,6 +18,7 @@ import com.wipro.shopforhome.orderservice.exception.CustomException;
 import com.wipro.shopforhome.orderservice.exception.ResourceNotFoundException;
 import com.wipro.shopforhome.orderservice.model.Cart;
 import com.wipro.shopforhome.orderservice.model.Category;
+import com.wipro.shopforhome.orderservice.model.Coupon;
 import com.wipro.shopforhome.orderservice.model.Product;
 import com.wipro.shopforhome.orderservice.model.User;
 import com.wipro.shopforhome.orderservice.repository.CartRepository;
@@ -38,6 +39,9 @@ public class CartService {
 
 	@Value("${microservice.category-service.endpoints.endpoint.uri}")
 	private String CATEGORY_URI;
+	
+	@Value("${microservice.discount-service.endpoints.endpoint.uri}")
+	private String DISCOUNT_URI;
 
 //    @Autowired
 //    private ProductService productService;
@@ -213,4 +217,16 @@ public class CartService {
 	public void deleteUserCartItems(User user) {
 		cartRepository.deleteByUser(user);
 	}
+	
+	public CartDTO applyCoupon(Coupon coupon,String token){
+        this.authenticationService.authenticate(token);
+        User user = this.authenticationService.getUser(token);
+//        Coupon coupon= this.restTemplate.getForObject(DISCOUNT_URI+"getCoupon/"+ code,Coupon.class);
+       CartDTO cartDTO= this.getCartItems(user);
+       double totalcost=cartDTO.getTotalCost();
+       double discount=(totalcost* (coupon.getPercentage()*0.01));;
+       cartDTO.setDiscount(discount);
+       this.restTemplate.delete(DISCOUNT_URI+"/delete/"+coupon.getId() + "?role=admin");
+       return cartDTO;
+    }
 }

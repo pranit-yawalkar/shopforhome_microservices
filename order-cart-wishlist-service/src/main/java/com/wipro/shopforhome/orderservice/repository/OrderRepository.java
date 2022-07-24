@@ -18,6 +18,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 //    @Query("from orders t where date(t.created_date)=:createdDate")
     List<Order> findAllByOrderByCreatedDateDesc();
     
+    List<Order> findAllByOrderByCreatedDateAsc();
+    
 //    @Query("select distinct date(created_date) from orders")
 //    List<Date> findDistinctCreatedDate();
 }

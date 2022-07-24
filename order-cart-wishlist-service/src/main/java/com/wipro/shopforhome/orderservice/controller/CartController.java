@@ -4,6 +4,7 @@ import com.wipro.shopforhome.orderservice.dto.ResponseDTO;
 import com.wipro.shopforhome.orderservice.dto.cart.AddToCartDTO;
 import com.wipro.shopforhome.orderservice.dto.cart.CartDTO;
 import com.wipro.shopforhome.orderservice.model.Cart;
+import com.wipro.shopforhome.orderservice.model.Coupon;
 import com.wipro.shopforhome.orderservice.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,12 @@ public class CartController {
 		ResponseDTO responseDTO = new ResponseDTO(true, "Item updated successfully");
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
+	
+	@PostMapping("/applyCoupon")
+    public ResponseEntity<CartDTO> applyCoupon(@RequestParam("token") String token, @RequestBody Coupon coupon){
+        CartDTO cartDTO= this.cartService.applyCoupon(coupon,token);
+        return new ResponseEntity<>(cartDTO,HttpStatus.OK);
+    }
 
 //    @PostMapping("/increase")
 //    public ResponseEntity<Boolean> increaseQuantity(@RequestBody Long cartItemId, @RequestParam("token") String token){

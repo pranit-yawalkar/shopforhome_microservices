@@ -38,11 +38,11 @@ public class Order {
 	@Column(name = "total_price", nullable = false)
 	private Double totalPrice;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "ordered_item_id")
 	private OrderItem orderItem;
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne()
 	@JoinColumn(name = "user_id")
 	private User user;
 }
