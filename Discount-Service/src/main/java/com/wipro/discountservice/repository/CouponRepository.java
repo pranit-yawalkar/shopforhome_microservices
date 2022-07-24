@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.wipro.discountservice.model.Coupon;
 
-public interface CouponRepository extends JpaRepository<Coupon, Integer> {
+public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     Coupon findByCode(String code);
 }

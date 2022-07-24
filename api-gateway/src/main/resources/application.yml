@@ -44,6 +44,17 @@ spring:
               args:
                 name: order-service
                 fallbackuri: forward:/orderServiceFallback
+                
+        - id: discount-service
+          uri: lb://discount-service
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: discount-service
+                fallbackuri: forward:/discountServiceFallback
+      
 
 management:
   endpoints:

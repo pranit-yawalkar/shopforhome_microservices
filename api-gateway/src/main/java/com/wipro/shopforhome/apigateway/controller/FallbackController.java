@@ -22,6 +22,11 @@ public class FallbackController {
     public String orderServiceFallback() {
         return "Order service is down at this time. Please try again later.";
     }
+    
+    @GetMapping("/discountServiceFallback")
+    public String discountServiceFallback() {
+        return "Discount service is down at this time. Please try again later.";
+    }
 
     @GetMapping("/configServiceFallback")
     public String configServiceFallback() {

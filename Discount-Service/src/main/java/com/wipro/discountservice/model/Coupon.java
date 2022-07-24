@@ -13,7 +13,7 @@ public class Coupon {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Long id;
 
 	@Column(name = "CODE", nullable = false)
 	private String code;
@@ -21,7 +21,7 @@ public class Coupon {
 	@Column(name = "PERCENTAGE", nullable = false)
 	private double percentage;
 
-	public Coupon(Integer id, String code, double percentage) {
+	public Coupon(Long id, String code, double percentage) {
 		super();
 		this.id = id;
 		this.code = code;
@@ -33,11 +33,11 @@ public class Coupon {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
