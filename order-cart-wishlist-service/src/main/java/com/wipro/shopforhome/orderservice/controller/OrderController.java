@@ -20,20 +20,18 @@ import com.wipro.shopforhome.orderservice.dto.order.OrderDTO;
 import com.wipro.shopforhome.orderservice.dto.order.OrderItemDTO;
 import com.wipro.shopforhome.orderservice.service.OrderService;
 
+
+/*
+ * Order Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/order")
 public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
-
-//	@PostMapping("/create-checkout-session")
-//	public ResponseEntity<StripeResponse> getCheckoutList(@RequestBody List<CheckoutItemDTO> checkoutItemDTOList)
-//			throws StripeException {
-//		Session session = this.orderService.createSession(checkoutItemDTOList);
-//		StripeResponse stripeResponse = new StripeResponse(session.getId());
-//		return new ResponseEntity<>(stripeResponse, HttpStatus.OK);
-//	}
 
 	@PostMapping("/place-order")
 	public ResponseEntity<List<OrderItemDTO>> placeOrder(@RequestBody CartDTO cartDTO, @RequestParam("token") String token) {
@@ -54,13 +52,19 @@ public class OrderController {
 	}
 	
 	@GetMapping("/getAllSorted")
-	public ResponseEntity<List<OrderDTO>> getAllSortedOrders(String role) {
+	public ResponseEntity<List<OrderDTO>> getAllSortedOrders(@RequestParam("role") String role) {
 		List<OrderDTO> sortedOrdersDTOs = this.orderService.getAllSorted(role);
 		return new ResponseEntity<>(sortedOrdersDTOs, HttpStatus.OK);
 	}
 	
+	@GetMapping("/getAllSortedOrders")
+	public ResponseEntity<List<OrderDTO>> getAllSortedOrders() {
+		List<OrderDTO> sortedOrdersDTOs = this.orderService.getAllSorted();
+		return new ResponseEntity<>(sortedOrdersDTOs, HttpStatus.OK);
+	}
+	
 	@GetMapping("/getAllSortedAsc")
-	public ResponseEntity<List<OrderDTO>> getAllSortedOrdersAsc(String role) {
+	public ResponseEntity<List<OrderDTO>> getAllSortedOrdersAsc(@RequestParam("role") String role) {
 		List<OrderDTO> sortedOrdersDTOs = this.orderService.getAllSortedAsc(role);
 		return new ResponseEntity<>(sortedOrdersDTOs, HttpStatus.OK);
 	}

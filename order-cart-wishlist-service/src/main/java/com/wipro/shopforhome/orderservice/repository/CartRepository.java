@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/*
+ * Cart Repository to interact with the database 
+ * and to perform CRUD operations on Cart.
+ */
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
 	List<Cart> getCartByUser(User user);

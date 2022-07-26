@@ -8,6 +8,11 @@ import com.wipro.shopforhome.userservice.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+/*
+ * Authentication Service class to define the business logic and interact with the 
+ * Token Repository.
+ */
 @Service
 public class AuthenticationService {
 

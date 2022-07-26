@@ -7,6 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/*
+ * Coupon Model Class in which attributes 
+ * and methods related to Coupon model are defined.
+ * 
+ */
 @Entity
 @Table(name = "Coupons")
 public class Coupon {
@@ -30,7 +35,6 @@ public class Coupon {
 
 	public Coupon() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public Long getId() {
@@ -57,5 +61,4 @@ public class Coupon {
 		this.percentage = percentage;
 	}
 
-	
 }

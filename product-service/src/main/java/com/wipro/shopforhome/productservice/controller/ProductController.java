@@ -19,6 +19,11 @@ import com.wipro.shopforhome.productservice.dto.ResponseDTO;
 import com.wipro.shopforhome.productservice.model.Product;
 import com.wipro.shopforhome.productservice.service.ProductService;
 
+/*
+ * Product Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/product/")
 public class ProductController {

@@ -10,6 +10,11 @@ import com.wipro.discountservice.exceptions.ResourceNotFoundException;
 import com.wipro.discountservice.model.Coupon;
 import com.wipro.discountservice.repository.CouponRepository;
 
+/*
+ * Coupon Service class to define the business logic and interact with the 
+ * Coupon Repository.
+ * 
+ */
 @Service
 public class CouponService {
 
@@ -66,6 +71,5 @@ public class CouponService {
 		}
 
 	}
-	
-	
+
 }

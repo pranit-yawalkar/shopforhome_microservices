@@ -21,6 +21,11 @@ import com.wipro.shopforhome.userservice.dto.SignupDTO;
 import com.wipro.shopforhome.userservice.model.User;
 import com.wipro.shopforhome.userservice.service.UserService;
 
+/*
+ * User Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/user/")
 public class UserController {

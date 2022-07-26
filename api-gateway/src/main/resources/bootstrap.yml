@@ -1,3 +1,4 @@
+# Cloud config server configuration
 spring:
   cloud:
     config:

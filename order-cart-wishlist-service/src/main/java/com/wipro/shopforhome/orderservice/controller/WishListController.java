@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/*
+ * Wishlist Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/wishlist/")
 public class WishListController {

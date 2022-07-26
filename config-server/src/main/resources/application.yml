@@ -1,3 +1,4 @@
+# Config server configuration to access the information from remote git repository
 spring:
   application:
     name: config-server
@@ -7,10 +8,12 @@ spring:
         git:
           uri: https://github.com/pranit-yawalkar/cloud-config-server
 
+# config server port
 server:
   port: 9004
 
 
+# Registering config server as an eureka client
 eureka:
   client:
     register-with-eureka: true

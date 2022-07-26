@@ -1,25 +1,23 @@
 package com.wipro.shopforhome.orderservice.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.wipro.shopforhome.orderservice.model.Order;
 import com.wipro.shopforhome.orderservice.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.List;
-
+/*
+ * Order Repository to interact with the database 
+ * and to perform CRUD operations on Order.
+ */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findByUser(User user);
-    
-//    @Query("from orders t where date(t.created_date)=:createdDate")
-    List<Order> findAllByOrderByCreatedDateDesc();
-    
-    List<Order> findAllByOrderByCreatedDateAsc();
-    
-//    @Query("select distinct date(created_date) from orders")
-//    List<Date> findDistinctCreatedDate();
+	List<Order> findByUser(User user);
+
+	List<Order> findAllByOrderByCreatedDateDesc();
+
+	List<Order> findAllByOrderByCreatedDateAsc();
+
 }

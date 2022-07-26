@@ -6,6 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+
+/*
+ * Exception Controller Advice to send the exception message as a 
+ * response entity to the client side.
+ */
 @ControllerAdvice
 public class ExceptionControllerAdvice extends IllegalArgumentException {
 
@@ -18,11 +23,6 @@ public class ExceptionControllerAdvice extends IllegalArgumentException {
     public final ResponseEntity<String> handleCustomException(CustomException customException) {
         return new ResponseEntity<>(customException.getMessage(), HttpStatus.BAD_REQUEST);
     }
-
-//    @ExceptionHandler(value = AuthenticationFailException.class)
-//    public final ResponseEntity<String> handleAuthenticationFailException(AuthenticationFailException authenticationFailException) {
-//        return new ResponseEntity<>(authenticationFailException.getMessage(), HttpStatus.BAD_REQUEST);
-//    }
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
     public final ResponseEntity<String> handleResouceNotFoundException(ResourceNotFoundException resourceNotFoundException) {

@@ -1,5 +1,9 @@
 package com.wipro.discountservice.exceptions;
 
+/*
+ * ResourceNotFoundException will be executed 
+ * if some resource does not exist.
+ */
 public class ResourceNotFoundException extends Exception {
 	/**
 	 * 

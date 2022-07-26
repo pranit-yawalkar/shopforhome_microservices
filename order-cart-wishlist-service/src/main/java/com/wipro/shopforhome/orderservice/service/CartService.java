@@ -23,6 +23,10 @@ import com.wipro.shopforhome.orderservice.model.Product;
 import com.wipro.shopforhome.orderservice.model.User;
 import com.wipro.shopforhome.orderservice.repository.CartRepository;
 
+/*
+ * Cart Service class to define the business logic and interact with the 
+ * Cart Repository, Product Service and Discount Service.
+ */
 @Service
 @RefreshScope
 public class CartService {
@@ -39,12 +43,9 @@ public class CartService {
 
 	@Value("${microservice.category-service.endpoints.endpoint.uri}")
 	private String CATEGORY_URI;
-	
+
 	@Value("${microservice.discount-service.endpoints.endpoint.uri}")
 	private String DISCOUNT_URI;
-
-//    @Autowired
-//    private ProductService productService;
 
 	@Autowired
 	private AuthenticationService authenticationService;
@@ -65,15 +66,6 @@ public class CartService {
 		cartItemDTO.setQuantity(quantity);
 		return true;
 	}
-//
-//	public boolean decreaseQuantityById(String token, Long id) {
-//		authenticationService.authenticate(token);
-//
-//		User user = authenticationService.getUser(token);
-//		CartItemDTO cartItemDTO = this.getCartItemById(id);
-//		cartItemDTO.setQuantity(cartItemDTO.getQuantity() - 1);
-//		return true;
-//	}
 
 	public Cart addToCart(AddToCartDTO addToCartDTO, String token) {
 
@@ -91,8 +83,6 @@ public class CartService {
 		});
 
 		// validate if the product id is valid
-//
-
 		ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + addToCartDTO.getProductId(),
 				ProductDTO.class);
 		Category category = this.restTemplate.getForObject(CATEGORY_URI + productDTO.getCategoryId(), Category.class);
@@ -118,7 +108,6 @@ public class CartService {
 		double totalCost = 0;
 
 		for (Cart cart : cartList) {
-//            ProductDTO productDTO = this.productService.getProductDTO(cart.getProduct());
 			ProductDTO productDTO = this.restTemplate.getForObject(PRODUCT_URI + cart.getProduct().getId(),
 					ProductDTO.class);
 			CartItemDTO cartItemDTO = new CartItemDTO(cart, productDTO);
@@ -217,16 +206,16 @@ public class CartService {
 	public void deleteUserCartItems(User user) {
 		cartRepository.deleteByUser(user);
 	}
-	
-	public CartDTO applyCoupon(Coupon coupon,String token){
-        this.authenticationService.authenticate(token);
-        User user = this.authenticationService.getUser(token);
-//        Coupon coupon= this.restTemplate.getForObject(DISCOUNT_URI+"getCoupon/"+ code,Coupon.class);
-       CartDTO cartDTO= this.getCartItems(user);
-       double totalcost=cartDTO.getTotalCost();
-       double discount=(totalcost* (coupon.getPercentage()*0.01));;
-       cartDTO.setDiscount(discount);
-       this.restTemplate.delete(DISCOUNT_URI+"/delete/"+coupon.getId() + "?role=admin");
-       return cartDTO;
-    }
+
+	public CartDTO applyCoupon(Coupon coupon, String token) {
+		this.authenticationService.authenticate(token);
+		User user = this.authenticationService.getUser(token);
+		CartDTO cartDTO = this.getCartItems(user);
+		double totalcost = cartDTO.getTotalCost();
+		double discount = (totalcost * (coupon.getPercentage() * 0.01));
+		;
+		cartDTO.setDiscount(discount);
+		this.restTemplate.delete(DISCOUNT_URI + "/delete/" + coupon.getId() + "?role=admin");
+		return cartDTO;
+	}
 }

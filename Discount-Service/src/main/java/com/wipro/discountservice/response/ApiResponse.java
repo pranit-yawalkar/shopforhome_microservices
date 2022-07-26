@@ -1,30 +1,57 @@
 package com.wipro.discountservice.response;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
+/*
+ * ApiResponse to send response to the client side
+ * along with a status and message.
+ */
 public class ApiResponse {
 
-    private final boolean success;
-    private final  String message;
+	private boolean success;
+	private String message;
 
-    private Date date;
+	private Date date;
 
-    public ApiResponse(boolean success, String message) {
-        this.success = success;
-        this.message = message;
-        this.date=new Date();
-    }
+	public ApiResponse(boolean success, String message, Date date) {
+		super();
+		this.success = success;
+		this.message = message;
+		this.date = date;
+	}
 
-    public boolean isSuccess() {
-        return success;
-    }
+	public ApiResponse() {
+		super();
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public ApiResponse(boolean success, String message) {
+		this.success = success;
+		this.message = message;
+		this.date = new Date();
+	}
 
-    public String getTimeStamp() {
-        return LocalDateTime.now().toString();
-    }
+	public boolean isSuccess() {
+		return success;
+	}
+
+	public void setSuccess(boolean success) {
+		this.success = success;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 }

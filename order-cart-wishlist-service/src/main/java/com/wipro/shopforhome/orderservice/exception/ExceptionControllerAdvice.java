@@ -6,6 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+/*
+ * Exception Controller Advice to send the exception message as a 
+ * response entity to the client side.
+ */
 @ControllerAdvice
 public class ExceptionControllerAdvice extends IllegalArgumentException {
 

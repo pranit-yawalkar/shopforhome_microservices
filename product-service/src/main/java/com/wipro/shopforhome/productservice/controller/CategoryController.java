@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/*
+ * Category Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/category/")
 public class CategoryController {
@@ -28,7 +33,7 @@ public class CategoryController {
 		Category category = this.categoryService.getCategoryById(id);
 		return new ResponseEntity<>(category, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/get/category/{categoryName}")
 	public ResponseEntity<Category> getCategoryById(@PathVariable String categoryName) {
 		Category category = this.categoryService.getCategoryByName(categoryName);

@@ -1,5 +1,12 @@
 package com.wipro.shopforhome.userservice.service;
 
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.wipro.shopforhome.userservice.dto.ResponseDTO;
 import com.wipro.shopforhome.userservice.dto.SigninDTO;
 import com.wipro.shopforhome.userservice.dto.SignupDTO;
@@ -10,14 +17,11 @@ import com.wipro.shopforhome.userservice.model.AuthenticationToken;
 import com.wipro.shopforhome.userservice.model.User;
 import com.wipro.shopforhome.userservice.repository.TokenRepository;
 import com.wipro.shopforhome.userservice.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-
-import javax.transaction.Transactional;
-
+/*
+ * User Service class to define the business logic and interact with the 
+ * User Repository.
+ */
 @Service
 public class UserService {
 

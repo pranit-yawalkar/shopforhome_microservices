@@ -21,6 +21,11 @@ import com.wipro.discountservice.repository.CouponRepository;
 import com.wipro.discountservice.response.ApiResponse;
 import com.wipro.discountservice.service.CouponService;
 
+/*
+ * Coupon Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/coupon")
 public class CouponController {
@@ -31,7 +36,8 @@ public class CouponController {
 	private CouponRepository couponRepository;
 
 	@PostMapping("/create")
-	public ResponseEntity<Coupon> createCoupon(@RequestParam("role") String role, @RequestBody Coupon coupon) throws Exception {
+	public ResponseEntity<Coupon> createCoupon(@RequestParam("role") String role, @RequestBody Coupon coupon)
+			throws Exception {
 		Coupon couponCreated = this.couponService.createCoupon(role, coupon);
 		return new ResponseEntity<>(couponCreated, HttpStatus.CREATED);
 	}
@@ -65,7 +71,8 @@ public class CouponController {
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<ApiResponse> deleteCoupon(@PathVariable Long id, @RequestParam("role") String role) throws Exception {
+	public ResponseEntity<ApiResponse> deleteCoupon(@PathVariable Long id, @RequestParam("role") String role)
+			throws Exception {
 		this.couponService.deleteCoupon(id, role);
 		ApiResponse apiResponse = new ApiResponse(true, "coupon deleted successfully");
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -83,7 +90,5 @@ public class CouponController {
 		Coupon coupon = this.couponService.getCouponById(couponId, role);
 		return new ResponseEntity<>(coupon, HttpStatus.OK);
 	}
-	
-	
 
 }

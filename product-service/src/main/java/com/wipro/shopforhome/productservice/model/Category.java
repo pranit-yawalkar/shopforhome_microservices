@@ -1,24 +1,17 @@
 package com.wipro.shopforhome.productservice.model;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+/*
+ * Category Model Class in which attributes 
+ * and methods related to category model are defined.
+ */
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "categories")
 public class Category {
 
@@ -35,5 +28,47 @@ public class Category {
 	@Column(name = "image_url", nullable = false)
 	private String imageUrl;
 
-}
+	public Category() {
+		super();
+	}
 
+	public Category(Long id, String categoryName, String description, String imageUrl) {
+		super();
+		this.id = id;
+		this.categoryName = categoryName;
+		this.description = description;
+		this.imageUrl = imageUrl;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+}

@@ -1,6 +1,8 @@
+# server port
 server:
   port: 9000
 
+# Registration of all the micro-services which will be accessed by the API Gateway
 spring:
   application:
     name: api-gateway
@@ -56,6 +58,7 @@ spring:
                 fallbackuri: forward:/discountServiceFallback
       
 
+# Hystrix configuration
 management:
   endpoints:
     web:

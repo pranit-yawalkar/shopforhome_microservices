@@ -1,5 +1,8 @@
 package com.wipro.shopforhome.orderservice.exception;
 
+/*
+ * CustomException will be executed if some other error occurs. 
+ */
 public class CustomException extends IllegalArgumentException {
     /**
 	 * 

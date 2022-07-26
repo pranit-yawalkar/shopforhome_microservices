@@ -1,5 +1,9 @@
 package com.wipro.shopforhome.orderservice.exception;
 
+/*
+ * AuthenticationFailException will be executed 
+ * if user has entered bad credentials.
+ */
 public class AuthenticationFailException extends IllegalArgumentException {
     /**
 	 * 

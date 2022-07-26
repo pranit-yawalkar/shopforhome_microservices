@@ -11,6 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/*
+ * Cart Controller to handle all the requests coming from the 
+ * client side and to provide a required response.
+ * 
+ */
 @RestController
 @RequestMapping("/api/cart/")
 public class CartController {
@@ -59,16 +64,4 @@ public class CartController {
         CartDTO cartDTO= this.cartService.applyCoupon(coupon,token);
         return new ResponseEntity<>(cartDTO,HttpStatus.OK);
     }
-
-//    @PostMapping("/increase")
-//    public ResponseEntity<Boolean> increaseQuantity(@RequestBody Long cartItemId, @RequestParam("token") String token){
-//    	boolean res = this.cartService.increaseQuantityById(token, cartItemId);
-//    	return new ResponseEntity<>(res, HttpStatus.OK);
-//    }
-
-//    @PostMapping("/decrease")
-//    public ResponseEntity<Boolean> decreaseQuantity(@RequestBody Long cartItemId, @RequestParam("token") String token){
-//    	boolean res = this.cartService.decreaseQuantityById(token, cartItemId);
-//    	return new ResponseEntity<>(res, HttpStatus.OK);
-//    }
 }

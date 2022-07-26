@@ -14,14 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+/*
+ * WishList Model Class in which attributes 
+ * and methods related to WishList model are defined.
+ * 
+ */
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "wishlist")
 public class WishList {
 
@@ -45,4 +43,50 @@ public class WishList {
         this.product = product;
         this.createdDate = new Date();
     }
+
+	public WishList() {
+		super();
+	}
+
+	public WishList(Long id, User user, Date createdDate, Product product) {
+		super();
+		this.id = id;
+		this.user = user;
+		this.createdDate = createdDate;
+		this.product = product;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+    
+    
 }

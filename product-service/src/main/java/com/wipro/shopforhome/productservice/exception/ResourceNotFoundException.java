@@ -1,6 +1,10 @@
 package com.wipro.shopforhome.productservice.exception;
 
 
+/*
+ * ResourceNotFoundException will be executed 
+ * if some resource does not exist.
+ */
 public class ResourceNotFoundException extends RuntimeException {
     /**
 	 * 

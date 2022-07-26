@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import com.wipro.shopforhome.productservice.model.Category;
 import com.wipro.shopforhome.productservice.repository.CategoryRepository;
 
+/*
+ * Category Service class to define the business logic and interact with the 
+ * Category Repository.
+ */
 @Service
 public class CategoryService {
 

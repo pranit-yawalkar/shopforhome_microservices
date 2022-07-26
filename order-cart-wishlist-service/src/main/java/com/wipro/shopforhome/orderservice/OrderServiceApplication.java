@@ -11,6 +11,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+/*
+ * Order Micro Service to manage all 
+ * the requests related to Order.
+ *  
+ */
 @SpringBootApplication
 public class OrderServiceApplication {
 
@@ -24,6 +29,9 @@ public class OrderServiceApplication {
 		return new RestTemplate();
 	}
 	
+	/*
+	 * CrossOrigin configuration
+	 */
 	@Bean
 	public CorsFilter corsFilter() {
 		CorsConfiguration configuration = new CorsConfiguration();
